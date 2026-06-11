@@ -11,3 +11,6 @@ spec:
     - ReadWriteOnce
   hostPath:
     path: /data/db
+    type: DirectoryOrCreate
+  storageClassName: mongo-storage
+  persistentVolumeReclaimPolicy: Retain

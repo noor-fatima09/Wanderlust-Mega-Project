@@ -3,24 +3,21 @@ kind: Deployment
 metadata:
   name: frontend-deployment
   namespace: wanderlust
-  labels:
-    app: frontend
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: frontend
   template:
     metadata:
-      name: frontend
       labels:
         app: frontend
     spec:
       containers:
-        - name: frontend
-          image: madhupdevops/wanderlust-frontend-beta:v3.0.18
+        - name: frontend-container
+          image: izumi09/wanderlust-frontend:latest
           ports:
-            - containerPort: 5173
+            - containerPort: 80
 ---
 apiVersion: v1
 kind: Service
@@ -32,7 +29,7 @@ spec:
   selector:
     app: frontend
   ports:
-    - port: 5173
-      targetPort: 5173
-      protocol: TCP
-      nodePort: 31000
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30080
