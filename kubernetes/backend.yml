@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: backend-deployment
   namespace: wanderlust
+  labels:
+    app: backend
 spec:
   replicas: 1
   selector:
@@ -28,12 +30,15 @@ kind: Service
 metadata:
   name: backend-service
   namespace: wanderlust
+  labels:
+    app: backend
 spec:
   type: NodePort
   selector:
     app: backend
   ports:
     - protocol: TCP
+      name: http
       port: 8080
       targetPort: 5000
       nodePort: 30050

@@ -1,0 +1,18 @@
+kind: ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+metadata:
+  name: mongo-monitor
+  namespace: monitoring
+  labels:
+    app: mongo
+spec:
+  selector:
+    matchLabels:
+      app: mongo
+  namespaceSelector:
+    matchNames:
+      - wanderlust
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
