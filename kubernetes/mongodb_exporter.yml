@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: mongo-exporter
+  namespace: wanderlust
+  labels:
+    app: mongo-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-exporter
+  template:
+    metadata:
+      labels:
+        app: mongo-exporter
+    spec:
+      containers:
+        - name: mongo-exporter
+          image: percona/mongodb_exporter:0.40.0
+          ports:
+            - containerPort: 9216
+          env:
+            - name: MONGODB_URI
+              value: mongodb://mongo-service:27017/wanderlust
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-exporter-service
+  namespace: wanderlust
+  labels:
+    app: mongo-exporter
+spec:
+  selector:
+    app: mongo-exporter
+  ports:
+    - name: http
+      port: 9216
+      protocol: TCP
+      targetPort: 9216
