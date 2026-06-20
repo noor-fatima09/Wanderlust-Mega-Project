@@ -7,6 +7,11 @@ metadata:
     app: backend
 spec:
   replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0      #Ensures your application ALWAYS has available pods serving traffic
+      maxSurge: 1             #Maximum 1 extra pod above the desired count during update
   selector:
     matchLabels:
       app: backend
@@ -15,15 +20,38 @@ spec:
       labels:
         app: backend
     spec:
+      initContainers:
+      - name: wait-for-mongo
+        image: busybox
+        command: ['sh', '-c', 'until nc -z mongo-service 27017; do echo waiting for mongo; sleep 2; done; echo mongo is up;']
       containers:
-        - name: backend-deployment
-          image: izumi09/wanderlust-backend:latest
-          ports:
-            - containerPort: 5000
-          envFrom:
-            - secretRef:
-                name: backend-secret
+      - name: backend-deployment
+        image: izumi09/wanderlust-backend:latest
+        ports:
+        - containerPort: 5000
+        envFrom:
+        - secretRef:
+            name: backend-secret
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          periodSeconds: 8
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          periodSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 5000
+          periodSeconds: 5
+          failureThreshold: 3
       restartPolicy: Always
+      terminationGracePeriodSeconds: 30     #wait for pod to terminate gracefully before forcefully killing it
 ---
 apiVersion: v1
 kind: Service 
